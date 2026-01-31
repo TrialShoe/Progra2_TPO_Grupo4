@@ -14,4 +14,12 @@ public class Cliente {
     public int getScoring() {
         return scoring;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+
+
+    // Hacer una función de "VerClientes()" con el Nombre: ... y Scoring: ... con un DICCIONARIO una vez que lo aprendamos.
 }

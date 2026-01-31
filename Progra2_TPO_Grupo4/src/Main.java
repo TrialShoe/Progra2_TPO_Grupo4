@@ -10,7 +10,10 @@ public class Main {
         listaClientes.add(new Cliente("Agustin",70));
         listaClientes.add(new Cliente("Facundo", 50));
 
+        listaClientes.add(new Cliente("Pepe", 50));
+
         BusquedaDeCliente buscador = new BusquedaDeCliente(listaClientes);
-        System.out.println(buscador.buscarPorNombre());
+        //System.out.println(buscador.buscarPorNombre());
+        System.out.println(buscador.buscarPorScoring());
     }
 }
