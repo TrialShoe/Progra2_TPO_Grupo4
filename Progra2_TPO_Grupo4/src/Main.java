@@ -11,13 +11,6 @@ public class Main {
         listaClientes.add(new Cliente("Facundo", 50));
 
         BusquedaDeCliente buscador = new BusquedaDeCliente(listaClientes);
-        Cliente encontrado = buscador.buscarPorNombre();
-
-        if (encontrado != null) {
-            System.out.print("Cliente encontrado: ");
-            System.out.print(encontrado.getNombre() + ", Scoring: " + encontrado.getScoring());
-        } else {
-            System.out.println("Cliente no encontrado");
-        }
+        System.out.println(buscador.buscarPorNombre());
     }
 }

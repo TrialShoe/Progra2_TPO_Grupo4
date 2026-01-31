@@ -8,17 +8,19 @@ public class BusquedaDeCliente {
         this.clientes = clientes;
     }
 
-    public Cliente buscarPorNombre() {
+    public String buscarPorNombre() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Ingrese el nombre del Cliente que desea buscar: ");
         String nombreInsertado = sc.nextLine();
 
         for (Cliente cliente : clientes) {
-            String nombre = cliente.getNombre();
-            if (nombre.equalsIgnoreCase(nombreInsertado)) {
-                return cliente;
+            if (cliente.getNombre().equalsIgnoreCase(nombreInsertado)) {
+                return "Cliente encontrado. Nombre: "
+                        + cliente.getNombre() +
+                        ", Scoring: "
+                        + cliente.getScoring();
             }
         }
-        return null;
+        return "Cliente no encontrado.";
     }
 }
