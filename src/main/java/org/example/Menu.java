@@ -82,10 +82,11 @@ public class Menu {
                 case 4: {
                     System.out.println("----------------------------------------");
                     System.out.println("1. Enviar solicitud de seguimiento");
-                    System.out.println("2. Procesar siguiente solicitud de la cola");
-                    System.out.println("3. Procesar todas las solicitudes");
-                    System.out.println("4. Ver solicitudes pendientes");
-                    System.out.println("5. Volver atrás\n");
+                    System.out.println("2. Dejar de seguir");
+                    System.out.println("3. Procesar siguiente solicitud de la cola");
+                    System.out.println("4. Procesar todas las solicitudes");
+                    System.out.println("5. Ver solicitudes pendientes");
+                    System.out.println("6. Volver atrás\n");
 
                     int subOpcion2 = sistema.leerEntero(sc, "Ingrese una opcion: ");
 
@@ -100,44 +101,65 @@ public class Menu {
 
                         case 2: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.procesarSiguienteSolicitud());
+                            String seguidor = sistema.leerTextoNoVacio(sc, "¿Quién deja de seguir?: ");
+                            String seguidorN = sistema.normalizarNombre(seguidor);
+                            String seguido = sistema.leerTextoNoVacio(sc, "¿A quién quiere dejar de seguir?: ");
+                            String seguidoN = sistema.normalizarNombre(seguido);
+                            System.out.println(sistema.encolarDejarDeSeguir(seguidorN, seguidoN));
                             break;
                         }
 
                         case 3: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.procesarTodasSolicitudes());
+                            System.out.println(sistema.procesarSiguienteSolicitud());
                             break;
                         }
 
                         case 4: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.verSolicitudesPendientes());
+                            System.out.println(sistema.procesarTodasSolicitudes());
                             break;
                         }
 
                         case 5: {
+                            System.out.println("----------------------------------------");
+                            System.out.println(sistema.verSolicitudesPendientes());
                             break;
                         }
 
-                        default: {
-                            System.out.println("Opción no válida.");
+                        case 6: {
                             break;
                         }
+
+                        default:
+                            System.out.println("Opción no válida.");
+                            break;
                     }
                     break;
                 }
 
                 case 5: {
                     System.out.println("----------------------------------------");
-                    System.out.println("Historial: (aún no implementado)\n");
+                    System.out.println("Historial:\n");
+                    System.out.println(sistema.verUltimaAccion() + "\n");
                     System.out.println("1. Deshacer última acción");
                     System.out.println("2. Volver atrás\n");
 
-                    int opHist = sistema.leerEntero(sc, "Ingrese una opcion: ");
-                    if (opHist == 1) {
-                        System.out.println("----------------------------------------");
-                        System.out.println("Deshacer: (aún no implementado)");
+                    int hist = sistema.leerEntero(sc, "Ingrese una opcion: ");
+
+                    switch (hist) {
+                        case 1: {
+                            System.out.println("----------------------------------------");
+                            System.out.println(sistema.deshacerUltimaAccion());
+                            break;
+                        }
+
+                        case 2: {
+                            break;
+                        }
+
+                        default:
+                            System.out.println("Opcion no valida.");
                     }
                     break;
                 }
@@ -147,9 +169,8 @@ public class Menu {
                     System.exit(0);
                 }
 
-                default: {
+                default:
                     System.out.println("Opcion no valida");
-                }
             }
         }
     }

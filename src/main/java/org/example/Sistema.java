@@ -13,6 +13,12 @@ public class Sistema {
     // Diccionario para buscar por Scoring (guarda claves normalizadas de nombre).
     private final Map<Integer, List<String>> porScoring = new HashMap<>();
 
+    private final Historial historial;
+
+    public Sistema() {
+        this.historial = new Historial(this);
+    }
+
     private static class DatosJson {
         public List<Cliente> clientes;
     }
@@ -64,7 +70,7 @@ public class Sistema {
         for (Cliente c : porNombre.values()) {
             i++;
             muestraTexto.append("CLIENTE ").append(i).append("\n")
-                    .append(c).append("\n\n");
+                    .append(c).append("\n");
         }
         return muestraTexto.toString();
     }
@@ -98,6 +104,9 @@ public class Sistema {
         int scoring = c.getScoring();
         porScoring.putIfAbsent(scoring, new ArrayList<>());
         porScoring.get(scoring).add(key);
+
+        // Agregarmos la acción al historial
+        historial.PilaHistorial.apilar("ADD|" + key);
 
         return "Cliente agregado:\nNombre: " + c.getNombre() + "\nScoring: " + scoring + "\n";
     }
@@ -159,6 +168,10 @@ public class Sistema {
         int scoring = eliminado.getScoring();
         List<String> lista = porScoring.get(scoring);
 
+        // Agregamos el cliente eliminado al historial.
+        historial.PilaHistorial.apilar("DEL|" + eliminado.getNombre() + "|" + scoring + "|" + historial.listaAString(eliminado.getSiguiendo()) + "|" + historial.listaAString(eliminado.getConexiones()));
+
+
         if (lista != null) {
             lista.remove(key);
             if (lista.isEmpty()) {
@@ -206,6 +219,41 @@ public class Sistema {
     }
 
 
+    public String encolarDejarDeSeguir(String seguidor, String seguido) {
+        String seguidorN = normalizarNombre(seguidor);
+        String seguidoN = normalizarNombre(seguido);
+
+        if (seguidorN.isBlank() || seguidoN.isBlank()) {
+            return "Error: El nombre no puede estar vacio.";
+        }
+
+        if (seguidorN.equals(seguidoN)) {
+            return "Error: Es el mismo cliente...";
+        }
+
+        Cliente cSeguidor = porNombre.get(seguidor);
+        Cliente cSeguido = porNombre.get(seguido);
+
+        if (cSeguidor == null) {
+            return "Error: No existe el seguidor " + seguidor + ".";
+        }
+
+        if (cSeguido == null) {
+            return "Error: No existe el cliente " + seguido + ".";
+        }
+
+        // Si no lo seguía, error.
+        if (!cSeguidor.yaSigue(seguido)) {
+            return "Error: " + cSeguidor.getNombre() + " no puede dejar de seguir a alguien que no sigue.";
+        }
+
+        cSeguidor.dejarDeSeguir(seguidoN);
+        historial.PilaHistorial.apilar("UNFOLLOW|" + seguidor + "|" + seguido);
+
+        return cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ".";
+    }
+
+
 
     public String procesarSiguienteSolicitud() {
 
@@ -232,6 +280,10 @@ public class Sistema {
 
         // Cliente sigue al seguido.
         cSeguidor.seguir(seguido);
+
+        // Agregamos al historial la solicitud procesada.
+        historial.PilaHistorial.apilar("FOLLOW|" + seguidor + "|" + seguido);
+
 
         return "Solicitud procesada: " + cSeguidor.getNombre() + " ahora sigue a " + cSeguido.getNombre()
                 + ". Solicitudes Pendientes: " + colaSolicitudes.size();
@@ -290,7 +342,98 @@ public class Sistema {
 
 
 
-    private String normalizarNombre(String s) {
+
+
+
+    // Metodo para volver a agregar el cliente que fue eliminado. Al deshacer la acción.
+    public String agregarClienteSinHistorial(Cliente c) {
+        if (c == null) {
+            return "Error: Agregue un cliente.";
+        }
+
+        String key = Sistema.normalizarNombre(c.getNombre());
+        if (key.isBlank()) {
+            return "Error: Nombre vacío.";
+        }
+
+        if (porNombre.containsKey(key)) {
+            return "Error: Ya existe el cliente " + c.getNombre() + ".";
+        }
+
+        porNombre.put(key, c);
+
+        int scoring = c.getScoring();
+        porScoring.putIfAbsent(scoring, new ArrayList<>());
+        porScoring.get(scoring).add(key);
+
+        return "Accion Deshacer: se volvió a agregar el cliente " + c.getNombre() + ".";
+    }
+
+
+
+    // Metodo para eliminar el cliente que fue agregado. Al deshacer la acción.
+    public String eliminarClienteSinHistorial(String nombre) {
+        Cliente eliminado = porNombre.remove(nombre);
+
+        if (eliminado == null) {
+            return "Error: El cliente no existe para deshacer esta acción.";
+        }
+
+        int scoring = eliminado.getScoring();
+        List<String> lista = porScoring.get(scoring);
+
+        if (lista != null) {
+            lista.remove(nombre);
+            if (lista.isEmpty()) {
+                porScoring.remove(scoring);
+            }
+        }
+
+        return "Accion Deshacer: se eliminó el cliente " + eliminado.getNombre() + ".";
+    }
+
+
+    // Metodo para seguir al cliente que dejó de seguir. Al deshacer la acción.
+    public String seguirSinHistorial(String seguidor, String seguido) {
+        Cliente cSeguidor = porNombre.get(seguidor);
+        Cliente cSeguido = porNombre.get(seguido);
+
+        if (cSeguidor == null || cSeguido == null) {
+            return "Error: No existen clientes para deshacer.";
+        }
+
+        if (cSeguidor.yaSigue(seguido)) {
+            return "Error al deshacer: " + seguidor + " ya seguía a " + seguido + ".";
+        }
+
+        cSeguidor.seguir(seguido);
+        return "Accion Deshacer: " + cSeguidor.getNombre() + " volvió a seguir a " + cSeguido.getNombre() + ".";
+    }
+
+
+    // Metodo para dejar de seguir al cliente que seguía. Al deshacer la acción.
+    public String dejarDeSeguirSinHistorial(String seguidor, String seguido) {
+        Cliente cSeguidor = porNombre.get(seguidor);
+        Cliente cSeguido = porNombre .get(seguido);
+
+        if (cSeguidor == null || cSeguido == null) {
+            return "Error: No existen clientes para deshacer.";
+        }
+
+        boolean ok = cSeguidor.dejarDeSeguir(seguido);
+        if (!ok) {
+            return "Deshacer: no se aplicó (no lo seguía).";
+        }
+
+        return "Accion Deshacer: " + cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ".";
+    }
+
+
+
+
+
+
+    public static String normalizarNombre(String s) {
         if (s == null) {
             return "";
         }
@@ -324,4 +467,16 @@ public class Sistema {
             System.out.println("Entrada inválida. Ingrese texto.");
         }
     }
+
+
+
+
+    public String verUltimaAccion() {
+        return historial.verUltimaAccion();
+    }
+
+    public String deshacerUltimaAccion() {
+        return historial.deshacerUltimaAccion();
+    }
+
 }
