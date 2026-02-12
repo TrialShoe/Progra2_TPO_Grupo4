@@ -61,3 +61,6 @@ public class Cliente {
                 + "Conexiones = " + conexiones + "\n";
     }
 }
+
+//agregar las solicitudes por cada cliente acá.
+//cada cliente tiene su cola de la gente que sigue.
