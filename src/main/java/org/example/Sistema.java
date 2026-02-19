@@ -23,6 +23,7 @@ public class Sistema {
         public List<Cliente> clientes;
     }
 
+
     public String cargarDesdeJson(String ruta) {
         Gson gson = new Gson();
 
@@ -74,6 +75,7 @@ public class Sistema {
         }
         return muestraTexto.toString();
     }
+
 
     public boolean existeClienteKey(String key) {
         return porNombre.containsKey(key);
@@ -279,7 +281,7 @@ public class Sistema {
     }
 
 
-
+    public void
 
 
 

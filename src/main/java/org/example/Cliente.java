@@ -138,6 +138,10 @@ public class Cliente implements ICliente {
         return "Solicitudes pendientes de " + nombre + ": " + colaSolicitudes + "\n";
     }
 
+    public String verConexiones(Sistema sistema) {
+
+    }
+
 
 
     private void seguirDirecto(String cliente) {

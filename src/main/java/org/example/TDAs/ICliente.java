@@ -10,5 +10,5 @@ public interface ICliente {
     String procesarSiguienteSolicitud(Sistema sistema);
     String procesarTodasSolicitudes(Sistema sistema);
     String verSolisPendientes();
-
+    String verConexiones(Sistema sistema);
 }

@@ -24,5 +24,7 @@ public class TesteoApp {
 
         System.out.println(s.buscarPorNombre("pedRO"));
 
+        System.out.println(s.buscarPorScoring(88));
+
     }
 }
