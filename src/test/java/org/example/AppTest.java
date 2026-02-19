@@ -1,38 +1,45 @@
 package org.example;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+public class AppTest extends TestCase {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+    public void todo() {
+        Sistema s = new Sistema();
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        Cliente c1 = new Cliente("Mateo",88);
+        Cliente c2 = new Cliente("Pedro",99);
+
+        System.out.println(s.cargarDesdeJson("datos.json"));
+
+        System.out.println(s.mostrarClientes());
+
+        System.out.println(s.agregarCliente(c1));
+
+        System.out.println(s.agregarCliente(c2));
+
+        System.out.println(s.mostrarClientes());
+
+        System.out.println(s.eliminarCliente("Pedro"));
+
+        System.out.println(s.mostrarClientes());
+
+        System.out.println(s.buscarPorNombre("Bob"));
+
+        System.out.println(s.buscarPorScoring(88));
+
+        System.out.println(s.encolarSolicitud("Mateo","Bob"));
+
+        System.out.println(s.verSolicitudesPendientes());
+
+        System.out.println(s.procesarSiguienteSolicitud());
+
+        System.out.println(s.buscarPorNombre("Mateo"));
+
+        System.out.println(s.verUltimaAccion());
+
+        System.out.println(s.deshacerUltimaAccion());
+
+        System.out.println(s.buscarPorNombre("Mateo"));
     }
 }
