@@ -36,7 +36,7 @@ public class Historial {
 
     // Para ver la última acción de la Pila (Historial de acciones).
     public String verUltimaAccion() {
-        return "Última acción: " + PilaHistorial.cima();
+        return "Última acción: " + PilaHistorial.cima() + "\n";
     }
 
 

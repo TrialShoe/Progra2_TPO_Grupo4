@@ -75,6 +75,13 @@ public class Sistema {
         return muestraTexto.toString();
     }
 
+    public boolean existeClienteKey(String key) {
+        return porNombre.containsKey(key);
+    }
+
+    public Cliente getClienteKey(String key) {
+        return porNombre.get(key);
+    }
 
     public boolean existeCliente(String nombre) {
         String key = normalizarNombre(nombre);
@@ -183,168 +190,6 @@ public class Sistema {
     }
 
 
-
-    private final Queue<SolicitudSeguimiento> colaSolicitudes = new LinkedList<>();
-
-    public String encolarSolicitud(String seguidor, String seguido) {
-
-        String seguidorN = normalizarNombre(seguidor);
-        String seguidoN = normalizarNombre(seguido);
-
-        if (seguidorN.isBlank() || seguidoN.isBlank()) {
-            return "Error: El nombre no puede estar vacío.";
-        }
-
-        if (seguidorN.equals(seguidoN)) {
-            return "Error: Un cliente no puede seguirse a sí mismo.";
-        }
-
-        if (!porNombre.containsKey(seguidorN)) {
-            return "Error: No existe el seguidor, " + seguidor + ".";
-        }
-        if (!porNombre.containsKey(seguidoN)) {
-            return "Error: No existe el cliente a seguir, " + seguido + ".";
-        }
-
-        Cliente cSeguidor = porNombre.get(seguidorN);
-        Cliente cSeguido = porNombre.get(seguidoN);
-
-        if (cSeguidor.yaSigue(seguidoN)) {
-            return "Error: " + cSeguidor.getNombre() + " ya sigue a " + seguidoN + ".";
-        }
-
-        colaSolicitudes.add(new SolicitudSeguimiento(seguidorN, seguidoN));
-        return "Solicitud de seguimiento de " + cSeguidor.getNombre() + " a " + cSeguido.getNombre()
-                + ". Solicitudes Pendientes: " + colaSolicitudes.size();
-    }
-
-
-    public String encolarDejarDeSeguir(String seguidor, String seguido) {
-        String seguidorN = normalizarNombre(seguidor);
-        String seguidoN = normalizarNombre(seguido);
-
-        if (seguidorN.isBlank() || seguidoN.isBlank()) {
-            return "Error: El nombre no puede estar vacio.";
-        }
-
-        if (seguidorN.equals(seguidoN)) {
-            return "Error: Es el mismo cliente...";
-        }
-
-        Cliente cSeguidor = porNombre.get(seguidor);
-        Cliente cSeguido = porNombre.get(seguido);
-
-        if (cSeguidor == null) {
-            return "Error: No existe el seguidor " + seguidor + ".";
-        }
-
-        if (cSeguido == null) {
-            return "Error: No existe el cliente " + seguido + ".";
-        }
-
-        // Si no lo seguía, error.
-        if (!cSeguidor.yaSigue(seguido)) {
-            return "Error: " + cSeguidor.getNombre() + " no puede dejar de seguir a alguien que no sigue.";
-        }
-
-        cSeguidor.dejarDeSeguir(seguidoN);
-        historial.PilaHistorial.apilar("UNFOLLOW|" + seguidor + "|" + seguido);
-
-        return cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ".";
-    }
-
-
-
-    public String procesarSiguienteSolicitud() {
-
-        if (colaSolicitudes.isEmpty()) {
-            return "No hay solicitudes pendientes.";
-        }
-
-        SolicitudSeguimiento sol = colaSolicitudes.poll(); // Saca la primera solicitud de la Cola.
-        String seguidor = sol.getSeguidor();
-        String seguido = sol.getSeguido();
-
-        // Puede pasar que entre acolar y procesar la solicitud alguien haya sido eliminado.
-        Cliente cSeguidor = porNombre.get(seguidor);
-        Cliente cSeguido = porNombre.get(seguido);
-
-        if (cSeguidor == null || cSeguido == null) {
-            return "Error, Solicitud descartada: uno de los clientes ya no existe. Solicitudes Pendientes: " + colaSolicitudes.size();
-        }
-
-        if (cSeguidor.yaSigue(seguido)) {
-            return "Error, Solicitud no aplicada ya que " + cSeguidor.getNombre() + " ya sigue a " + cSeguido.getNombre()
-                    + ". Solicitudes Pendientes: " + colaSolicitudes.size();
-        }
-
-        // Cliente sigue al seguido.
-        cSeguidor.seguir(seguido);
-
-        // Agregamos al historial la solicitud procesada.
-        historial.PilaHistorial.apilar("FOLLOW|" + seguidor + "|" + seguido);
-
-
-        return "Solicitud procesada: " + cSeguidor.getNombre() + " ahora sigue a " + cSeguido.getNombre()
-                + ". Solicitudes Pendientes: " + colaSolicitudes.size();
-    }
-
-
-    public String procesarTodasSolicitudes() {
-
-        if (colaSolicitudes.isEmpty()) {
-            return "No hay solicitudes pendientes.";
-        }
-
-        int procesadas = 0;
-        int aplicadas = 0;
-
-        int total = colaSolicitudes.size();
-
-        for (int i = 0; i < total; i++) {
-            String revisar = procesarSiguienteSolicitud();
-            procesadas++;
-
-            if (revisar.contains("Solicitud procesada")) {
-                aplicadas++;
-            }
-        }
-
-        return "Solicitudes Procesadas: " + procesadas + ". Aplicadas: " + aplicadas + ". Pendientes: " + colaSolicitudes.size();
-    }
-
-
-    public String verSolicitudesPendientes() {
-
-        if (colaSolicitudes.isEmpty()) {
-            return "No hay solicitudes pendientes.";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Solicitudes pendientes: ").append(colaSolicitudes.size()).append(":\n");
-
-        int i = 0;
-
-        for (SolicitudSeguimiento sol : colaSolicitudes) {
-            i++;
-
-            Cliente seguidor = porNombre.get(sol.getSeguidor());
-            Cliente seguido = porNombre.get(sol.getSeguido());
-
-            String a = (seguidor != null) ? seguidor.getNombre() : sol.getSeguidor();
-            String b = (seguido != null) ? seguido.getNombre() : sol.getSeguido();
-
-            sb.append(i).append(") ").append(a).append(" -> ").append(b).append("\n");
-        }
-
-        return sb.toString();
-    }
-
-
-
-
-
-
     // Metodo para volver a agregar el cliente que fue eliminado. Al deshacer la acción.
     public String agregarClienteSinHistorial(Cliente c) {
         if (c == null) {
@@ -395,8 +240,8 @@ public class Sistema {
 
     // Metodo para seguir al cliente que dejó de seguir. Al deshacer la acción.
     public String seguirSinHistorial(String seguidor, String seguido) {
-        Cliente cSeguidor = porNombre.get(seguidor);
-        Cliente cSeguido = porNombre.get(seguido);
+        Cliente cSeguidor = getClienteKey(seguidor);
+        Cliente cSeguido = getClienteKey(seguido);
 
         if (cSeguidor == null || cSeguido == null) {
             return "Error: No existen clientes para deshacer.";
@@ -406,26 +251,31 @@ public class Sistema {
             return "Error al deshacer: " + seguidor + " ya seguía a " + seguido + ".";
         }
 
-        cSeguidor.seguir(seguido);
+        cSeguidor.seguirDirectoSinCola(seguido);
         return "Accion Deshacer: " + cSeguidor.getNombre() + " volvió a seguir a " + cSeguido.getNombre() + ".";
     }
 
 
     // Metodo para dejar de seguir al cliente que seguía. Al deshacer la acción.
     public String dejarDeSeguirSinHistorial(String seguidor, String seguido) {
-        Cliente cSeguidor = porNombre.get(seguidor);
-        Cliente cSeguido = porNombre .get(seguido);
+        Cliente cSeguidor = getClienteKey(seguidor);
+        Cliente cSeguido = getClienteKey(seguido);
 
         if (cSeguidor == null || cSeguido == null) {
             return "Error: No existen clientes para deshacer.";
         }
 
-        boolean ok = cSeguidor.dejarDeSeguir(seguido);
+        boolean ok = cSeguidor.dejarDeSeguirDirectoSinCola(seguido);
         if (!ok) {
             return "Deshacer: no se aplicó (no lo seguía).";
         }
 
         return "Accion Deshacer: " + cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ".";
+    }
+
+
+    public void registrarAccion(String accion) {
+        historial.PilaHistorial.apilar(accion);
     }
 
 

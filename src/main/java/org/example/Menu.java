@@ -95,7 +95,7 @@ public class Menu {
                             System.out.println("----------------------------------------");
                             String seguidor = sistema.leerTextoNoVacio(sc, "¿Quién envía la solicitud?: ");
                             String seguido = sistema.leerTextoNoVacio(sc, "¿A quién quiere seguir?: ");
-                            System.out.println(sistema.encolarSolicitud(seguidor, seguido));
+                            //System.out.println(sistema.encolarSolicitud(seguidor, seguido));
                             break;
                         }
 
@@ -105,25 +105,25 @@ public class Menu {
                             String seguidorN = sistema.normalizarNombre(seguidor);
                             String seguido = sistema.leerTextoNoVacio(sc, "¿A quién quiere dejar de seguir?: ");
                             String seguidoN = sistema.normalizarNombre(seguido);
-                            System.out.println(sistema.encolarDejarDeSeguir(seguidorN, seguidoN));
+                            //System.out.println(sistema.encolarDejarDeSeguir(seguidorN, seguidoN));
                             break;
                         }
 
                         case 3: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.procesarSiguienteSolicitud());
+                            //System.out.println(sistema.procesarSiguienteSolicitud());
                             break;
                         }
 
                         case 4: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.procesarTodasSolicitudes());
+                            //System.out.println(sistema.procesarTodasSolicitudes());
                             break;
                         }
 
                         case 5: {
                             System.out.println("----------------------------------------");
-                            System.out.println(sistema.verSolicitudesPendientes());
+                            //System.out.println(sistema.verSolicitudesPendientes());
                             break;
                         }
 
