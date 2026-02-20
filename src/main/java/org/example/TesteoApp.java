@@ -8,23 +8,30 @@ public class TesteoApp {
 
         System.out.println(s.cargarDesdeJson("datos.json"));
 
-        System.out.println(s.agregarCliente(c1));
+        s.agregarCliente(c1);
 
-        System.out.println(c1.seguir("bob", s));
+        s.mostrarClientes();
 
-        System.out.println(c1.seguir("charlie",s));
 
-        System.out.println(c1.verSolisPendientes());
 
-        System.out.println(c1.procesarTodasSolicitudes(s));
+        c1.seguir("bob", s);
+
+        c1.seguir("charlie",s);
+
+        System.out.println(c1.seguir("david",s));
+
+        c1.procesarTodasSolicitudes(s);
 
         System.out.println(s.verUltimaAccion());
 
         System.out.println(s.deshacerUltimaAccion());
 
-        System.out.println(s.buscarPorNombre("pedRO"));
+        System.out.println(s.buscarPorNombre("pEDRo"));
 
-        System.out.println(s.buscarPorScoring(88));
+        System.out.println(s.mostrarSeguidos("bob"));
+
+        System.out.println(s.mostrarConexiones("david"));
+        
 
     }
 }

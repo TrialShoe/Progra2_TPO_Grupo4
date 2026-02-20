@@ -60,6 +60,13 @@ public class Cliente implements ICliente {
 
         if (yaSigue(seguidoN)) return "Error: " + nombre + " ya sigue a " + seguidoN;
 
+        int actuales = siguiendo.size();
+        int pendientes = contarFollowsPendientes();
+
+        if (actuales + pendientes >= 2) {
+            return "Error: " + nombre + " alcanzó el máximo de 2 clientes seguidos. \n";
+        }
+
         colaSolicitudes.add("FOLLOW|" + seguidoN);
 
         return "Solicitud de seguimiento en la cola. Solis pendientes: " + colaSolicitudes.size() + "\n";
@@ -94,6 +101,8 @@ public class Cliente implements ICliente {
         // Aplicamos Follow
         if (tipo.equals("FOLLOW")) {
             if (yaSigue(cliente)) return "Error: el cliente ya lo seguía. Solis pendientes: " + colaSolicitudes.size();
+
+            if (siguiendo.size() >= 2) return "Error: " + nombre + " alcanzó el máximo de 2 clientes seguidos. \n";
 
             // Se aplica el Follow
             seguirDirecto(cliente);
@@ -138,10 +147,18 @@ public class Cliente implements ICliente {
         return "Solicitudes pendientes de " + nombre + ": " + colaSolicitudes + "\n";
     }
 
-    public String verConexiones(Sistema sistema) {
 
+
+
+
+
+    private int contarFollowsPendientes() {
+        int count = 0;
+        for (String s : colaSolicitudes) {
+            if (s != null && s.startsWith("FOLLOW|")) count++;
+        }
+        return count;
     }
-
 
 
     private void seguirDirecto(String cliente) {
@@ -164,6 +181,7 @@ public class Cliente implements ICliente {
     boolean dejarDeSeguirDirectoSinCola(String objetivoKey) {
         return siguiendo.remove(objetivoKey);
     }
+
 
 
 

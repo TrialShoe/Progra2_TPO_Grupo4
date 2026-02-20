@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 
+import java.util.Comparator;
+import java.util.List;
+
 public class Sistema {
     // Diccionario para buscar por Nombre (clave normalizada).
     private final Map<String, Cliente> porNombre = new HashMap<>();
@@ -60,20 +63,36 @@ public class Sistema {
     }
 
 
-    public String mostrarClientes(){
-        if (porNombre.isEmpty()) {
-            return "No hay clientes cargados en el archivo JSON.";
-        }
+    public void mostrarClientes() {
 
-        StringBuilder muestraTexto = new StringBuilder();
-        int i = 0;
+        List<Cliente> listaOrdenada = ordenarClientes(porNombre);
 
-        for (Cliente c : porNombre.values()) {
-            i++;
-            muestraTexto.append("CLIENTE ").append(i).append("\n")
-                    .append(c).append("\n");
+        System.out.println("----- Clientes ordenados por SCORING -----");
+
+        for (Cliente c : listaOrdenada) {
+            System.out.println(
+                    "Nombre: " + c.getNombre() + "\n"
+                            + "Scoring: " + c.getScoring() + "\n"
+                            + "Siguiendo: " + c.getSiguiendo() + "\n"
+                            + "Conexiones: " + c.getConexiones() + "\n"
+            );
         }
-        return muestraTexto.toString();
+        System.out.println("------------------------------");
+    }
+
+
+    public static List<Cliente> ordenarClientes(Map<String, Cliente> clientes) {
+
+        List<Cliente> listaOrdenada = new ArrayList<>(clientes.values());
+
+        listaOrdenada.sort(
+                Comparator
+                        .comparingInt(Cliente::getScoring)
+                        .reversed()
+                        .thenComparing(Cliente::getNombre)
+        );
+
+        return listaOrdenada;
     }
 
 
@@ -192,6 +211,39 @@ public class Sistema {
     }
 
 
+    public String mostrarSeguidos(String cliente) {
+        String key = normalizarNombre(cliente);
+
+        if (key.isBlank()) {
+            return "Error: Nombre de cliente no válido, por favor ingrese uno nuevamente.";
+        }
+
+        Cliente c = porNombre.get(key);
+        if (c != null) {
+            return "Seguidos de " + key + ": " + c.getSiguiendo();
+        }
+        return "Error: Cliente no encontrado.";
+    }
+
+
+    public String mostrarConexiones(String cliente) {
+        String key = normalizarNombre(cliente);
+
+        if (key.isBlank()) {
+            return "Error: Nombre de cliente no válido, por favor ingrese uno nuevamente.";
+        }
+
+        Cliente c = porNombre.get(key);
+        if (c != null) {
+            return "Conexiones de " + key + ": " + c.getConexiones();
+        }
+        return "Error: Cliente no encontrado.";
+    }
+
+
+
+
+
     // Metodo para volver a agregar el cliente que fue eliminado. Al deshacer la acción.
     public String agregarClienteSinHistorial(Cliente c) {
         if (c == null) {
@@ -213,9 +265,8 @@ public class Sistema {
         porScoring.putIfAbsent(scoring, new ArrayList<>());
         porScoring.get(scoring).add(key);
 
-        return "Accion Deshacer: se volvió a agregar el cliente " + c.getNombre() + ".";
+        return "Accion Deshacer: se volvió a agregar el cliente " + c.getNombre() + ". \n";
     }
-
 
 
     // Metodo para eliminar el cliente que fue agregado. Al deshacer la acción.
@@ -236,7 +287,7 @@ public class Sistema {
             }
         }
 
-        return "Accion Deshacer: se eliminó el cliente " + eliminado.getNombre() + ".";
+        return "Accion Deshacer: se eliminó el cliente " + eliminado.getNombre() + ". \n";
     }
 
 
@@ -254,7 +305,7 @@ public class Sistema {
         }
 
         cSeguidor.seguirDirectoSinCola(seguido);
-        return "Accion Deshacer: " + cSeguidor.getNombre() + " volvió a seguir a " + cSeguido.getNombre() + ".";
+        return "Accion Deshacer: " + cSeguidor.getNombre() + " volvió a seguir a " + cSeguido.getNombre() + ". \n";
     }
 
 
@@ -272,7 +323,7 @@ public class Sistema {
             return "Deshacer: no se aplicó (no lo seguía).";
         }
 
-        return "Accion Deshacer: " + cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ".";
+        return "Accion Deshacer: " + cSeguidor.getNombre() + " dejó de seguir a " + cSeguido.getNombre() + ". \n";
     }
 
 
@@ -281,7 +332,7 @@ public class Sistema {
     }
 
 
-    public void
+
 
 
 
