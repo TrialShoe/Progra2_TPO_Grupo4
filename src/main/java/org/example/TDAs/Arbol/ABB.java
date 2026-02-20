@@ -65,5 +65,26 @@ public class ABB<T extends Comparable<T>> implements iArbolBinarioTDA<T> {
 
 
 
+
+
+
+    public void imprimirNivel(int nivel) {
+        imprimirNivel(arbolBinario.raiz, 1, nivel); // raíz en nivel 1
+    }
+
+    private void imprimirNivel(Nodo<T> nodo, int actual, int objetivo) {
+        if (nodo == null) return;
+
+        if (actual == objetivo) {
+            System.out.println(nodo.elemento); // imprime ESTE nodo del nivel
+            return;
+        }
+
+        imprimirNivel(nodo.izq, actual + 1, objetivo);
+        imprimirNivel(nodo.der, actual + 1, objetivo);
+    }
+
+
+
 }
 

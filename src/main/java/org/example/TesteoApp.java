@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.TDAs.Arbol.ABB;
+
 public class TesteoApp {
     public static void main(String[] args) {
         Sistema s = new Sistema();
@@ -28,10 +30,21 @@ public class TesteoApp {
 
         System.out.println(s.buscarPorNombre("pEDRo"));
 
-        System.out.println(s.mostrarSeguidos("bob"));
+        System.out.println(s.mostrarSeguidos("Alice"));
 
         System.out.println(s.mostrarConexiones("david"));
-        
+
+
+        System.out.println();
+        s.pruebaImprimirNiveles();
+
+
+
+        System.out.println();
+
+        System.out.println(s.clienteConMasSeguidores());
+
+
 
     }
 }

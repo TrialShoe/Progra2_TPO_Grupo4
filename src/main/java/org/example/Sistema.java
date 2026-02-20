@@ -1,6 +1,7 @@
 package org.example;
 
 import com.google.gson.Gson;
+import org.example.TDAs.Arbol.ABB;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -239,6 +240,82 @@ public class Sistema {
         }
         return "Error: Cliente no encontrado.";
     }
+
+
+    private Map<String, Integer> calcularSeguidoresPorConexiones() {
+        Map<String, Integer> seg = new HashMap<>();
+
+        for (Map.Entry<String, Cliente> entry : porNombre.entrySet()) {
+            String key = entry.getKey();          // key normalizada del cliente
+            Cliente c = entry.getValue();
+
+            // conexiones viene con nombres reales -> normalizo y filtro existentes
+            int count = 0;
+            if (c.getConexiones() != null) {
+                HashSet<String> vistos = new HashSet<>();
+                for (String nombreReal : c.getConexiones()) {
+                    String k = normalizarNombre(nombreReal);
+                    if (!k.isBlank() && porNombre.containsKey(k) && vistos.add(k)) {
+                        count++;
+                    }
+                }
+            }
+
+            seg.put(key, count);
+        }
+
+        return seg;
+    }
+
+
+    public ABB<RankCliente> construirABBSeguidores() {
+        ABB<RankCliente> abb = new ABB<>();
+        abb.crearArbol();
+
+        Map<String, Integer> seguidores = calcularSeguidoresPorConexiones();
+
+        for (var e : seguidores.entrySet()) {
+            abb.agregarElemento(new RankCliente(e.getKey(), e.getValue()));
+        }
+
+        return abb;
+    }
+
+
+    public void imprimirClientesNivel4() {
+        ABB<RankCliente> abb = construirABBSeguidores();
+        System.out.println("Clientes en nivel 4:");
+        abb.imprimirNivel(4);
+    }
+
+
+    public void pruebaImprimirNiveles() {
+        ABB<RankCliente> abb = construirABBSeguidores();
+        System.out.println("Nivel 1:");
+        abb.imprimirNivel(1);
+        System.out.println("Nivel 2:");
+        abb.imprimirNivel(2);
+        System.out.println("Nivel 3:");
+        abb.imprimirNivel(3);
+        System.out.println("Nivel 4:");
+        abb.imprimirNivel(4);
+        System.out.println("Nivel 5:");
+        abb.imprimirNivel(5);
+    }
+
+    public String clienteConMasSeguidores() {
+        ABB<RankCliente> abb = construirABBSeguidores();
+        RankCliente max = abb.maximo();
+
+        if (max == null) return "Error: No hay clientes.";
+
+        Cliente c = porNombre.get(max.key);
+        String nombreReal = (c != null) ? c.getNombre() : max.key;
+
+        return "Cliente con más seguidores: " + nombreReal + " => " + max.seguidores + "\n";
+    }
+
+
 
 
 
