@@ -19,6 +19,8 @@ public class Sistema {
 
     private final Historial historial;
 
+    private final List<Amistad> amistades = new ArrayList<>();
+
     public Sistema() {
         this.historial = new Historial(this);
     }
@@ -285,12 +287,8 @@ public class Sistema {
     public void imprimirNivel4() {
         AVL<RankCliente> avl = construirAVLSeguidores();
 
-        System.out.println("Clientes en nivel 4: (si raíz = 0)");
+        System.out.println("Clientes en nivel 4: (Raíz = 0)");
         avl.imprimirPorNivel(3);                    // Ya que Raíz es = 0.
-        System.out.println();
-
-        System.out.println("Clientes en nivel 4: (con raíz = 1)");
-        avl.imprimirPorNivel(4);
         System.out.println();
     }
 
@@ -424,6 +422,60 @@ public class Sistema {
     }
 
 
+
+    // agregar una relacion simetrica entre dos clientes (se presume que una relacion de amistad es bidireccional)
+    public boolean agregarAmistad(String a, String b) {
+        Cliente ca = getClienteKey(a);
+        Cliente cb = getClienteKey(b);
+        if (ca == null || cb == null) return false;
+
+        if (!ca.getConexiones().contains(b)) ca.getConexiones().add(b);
+        if (!cb.getConexiones().contains(a)) cb.getConexiones().add(a);
+
+
+        amistades.add(new Amistad(a, b));
+
+        registrarAccion("RELACION|" + a + "|" + b);
+        return true;
+    }
+
+    // obtener vecinos (conexiones) de un cliente
+    public Set<String> getVecinos(String nombre) {
+        Cliente c = getClienteKey(nombre);
+        if (c == null) return Collections.emptySet();
+        return new HashSet<>(c.getConexiones());
+    }
+
+    // Calcula distancia (numero de saltos) entre dos clientes.
+    public OptionalInt distancia(String clienteInicial, String clienteDestino) {
+        Cliente inicial = getClienteKey(clienteInicial);
+        Cliente destino = getClienteKey(clienteDestino);
+        if (inicial == null || destino == null) return OptionalInt.empty();
+        if (clienteInicial.equals(clienteDestino)) return OptionalInt.of(0);
+
+        Queue<String> q = new ArrayDeque<>();
+        Map<String, Integer> dist = new HashMap<>();
+        Set<String> visitados = new HashSet<>();
+
+        q.add(clienteInicial); dist.put(clienteInicial, 0); visitados.add(clienteInicial);
+
+        while (!q.isEmpty()) {
+            String actual = q.poll();
+            int d = dist.get(actual);
+            for (String vecino : getVecinos(actual)) {
+                if (visitados.contains(vecino)) continue;
+                if (vecino.equals(clienteDestino)) return OptionalInt.of(d + 1);
+                visitados.add(vecino);
+                dist.put(vecino, d + 1);
+                q.add(vecino);
+            }
+        }
+        return OptionalInt.empty();
+    }
+
+    public List<Amistad> getAmistades() {
+        return new ArrayList<>(amistades);
+    }
 
 
 

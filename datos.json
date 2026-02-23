@@ -3,13 +3,13 @@
     {
       "nombre": "Alice",
       "scoring": 95,
-      "siguiendo": ["Bob", "Charlie"],
+      "siguiendo": ["Bob", "Charlie", "Manuel Adrian Caceres", "Obama"],
       "conexiones": ["Bob", "Charlie", "David", "Frank"]
     },
     {
       "nombre": "Bob",
       "scoring": 88,
-      "siguiendo": ["David"],
+      "siguiendo": ["David", "Obama"],
       "conexiones": ["Alice", "David"]
     },
     {
@@ -21,21 +21,50 @@
     {
       "nombre": "David",
       "scoring": 92,
-      "siguiendo": ["Alice"],
+      "siguiendo": ["Alice", "Manuel Adrian Caceres", "Obama"],
       "conexiones": ["Bob", "Alice", "Frank"]
     },
     {
       "nombre": "Eve",
       "scoring": 85,
       "siguiendo": [],
-      "conexiones": ["Charlie"]
+      "conexiones": ["Charlie", "Manuel Adrian Caceres"]
     },
     {
       "nombre": "Frank",
       "scoring": 78,
-      "siguiendo": ["Alice"],
+      "siguiendo": ["Alice", "Manuel Adrian Caceres"],
       "conexiones": ["David"]
+    },
+    {
+      "nombre": "Elon",
+      "scoring": 95,
+      "siguiendo": ["David", "Manuel Adrian Caceres", "Obama"],
+      "conexiones": []
+    },
+    {
+      "nombre": "Manuel Adrian Caceres",
+      "scoring": 99,
+      "siguiendo": ["Eve"],
+      "conexiones": ["David", "Elon", "Eve", "Alice", "Frank", "Obama"]
+    },
+    {
+      "nombre": "Cristiano Ronaldo",
+      "scoring": 7,
+      "siguiendo": ["Messi"],
+      "conexiones": ["Messi"]
+    },
+    {
+      "nombre": "Messi",
+      "scoring": 10,
+      "siguiendo": ["Cristiano Ronaldo"],
+      "conexiones": ["Cristiano Ronaldo"]
+    },
+    {
+      "nombre": "Obama",
+      "scoring": 90,
+      "siguiendo": ["Manuel Adrian Caceres"],
+      "conexiones": ["Bob", "Alice", "David", "Elon"]
     }
-
   ]
 }

@@ -1,6 +1,6 @@
 package org.example.TDAs.ArbolAVL;
 
-public class AVL<T extends Comparable<T>> {
+public class AVL<T extends Comparable<T>> implements IAVL<T>{
 
     private Arbol<T> arbol;
 
@@ -98,24 +98,6 @@ public class AVL<T extends Comparable<T>> {
         }
         arbol.imprimirPorNivel(nivel);
     }
-
-    public void imprimirMayor() {
-        if (arbol.estaVacio()) {
-            System.out.println("El árbol está vacío.");
-            return;
-        }
-        System.out.println(imprimirMayorRecursivo(arbol.getRaiz()).toString());
-    }
-
-    private Nodo<T> imprimirMayorRecursivo(Nodo<T> raiz) {
-        if (raiz.getDerecho() != null) {
-            return imprimirMayorRecursivo(raiz.getDerecho());
-        }
-        return raiz; // Retorna el nodo con el valor máximo
-    }
-
-
-
 
 
 
