@@ -13,6 +13,8 @@ public class Cliente implements ICliente {
     public List<String> siguiendo;
     public List<String> conexiones;
 
+    private final Queue<String> colaSolicitudes = new LinkedList<>();
+
     // Constructor para agregar datos A MANO.
     public Cliente(String nombre, int scoring) {
         this.nombre = nombre;
@@ -27,6 +29,14 @@ public class Cliente implements ICliente {
         this.scoring = scoring;
         this.siguiendo = (siguiendo != null) ? siguiendo : new ArrayList<>();
         this.conexiones = (conexiones != null) ? conexiones : new ArrayList<>();
+    }
+
+    // Constructor vacío para el metodo de obtenerCliente de Sistema.
+    public Cliente() {
+        this.nombre = "";
+        this.scoring = 0;
+        this.siguiendo = new ArrayList<>();
+        this.conexiones = new ArrayList<>();
     }
 
     public String getNombre() {
@@ -45,7 +55,7 @@ public class Cliente implements ICliente {
         return conexiones;
     }
 
-    private final Queue<String> colaSolicitudes = new LinkedList<>();
+
 
     public boolean yaSigue(String nombreSeguido) {
         return siguiendo.contains(nombreSeguido);
@@ -153,13 +163,13 @@ public class Cliente implements ICliente {
 
 
     private int contarFollowsPendientes() {
+        if (colaSolicitudes == null) return 0;
         int count = 0;
         for (String s : colaSolicitudes) {
             if (s != null && s.startsWith("FOLLOW|")) count++;
         }
         return count;
     }
-
 
     private void seguirDirecto(String cliente) {
         siguiendo.add(cliente);

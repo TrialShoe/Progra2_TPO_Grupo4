@@ -1,7 +1,7 @@
 package org.example;
 
 import com.google.gson.Gson;
-import org.example.TDAs.Arbol.ABB;
+import org.example.TDAs.ArbolAVL.AVL;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -211,6 +211,11 @@ public class Sistema {
         return "Cliente eliminado: " + eliminado.getNombre() + ", Scoring: " + scoring;
     }
 
+    public Cliente obtenerCliente(String nombre) {
+        String key = normalizarNombre(nombre);
+        return porNombre.get(key);
+    }
+
 
     public String mostrarSeguidos(String cliente) {
         String key = normalizarNombre(cliente);
@@ -225,7 +230,6 @@ public class Sistema {
         }
         return "Error: Cliente no encontrado.";
     }
-
 
     public String mostrarConexiones(String cliente) {
         String key = normalizarNombre(cliente);
@@ -246,10 +250,9 @@ public class Sistema {
         Map<String, Integer> seg = new HashMap<>();
 
         for (Map.Entry<String, Cliente> entry : porNombre.entrySet()) {
-            String key = entry.getKey();          // key normalizada del cliente
+            String key = entry.getKey();
             Cliente c = entry.getValue();
 
-            // conexiones viene con nombres reales -> normalizo y filtro existentes
             int count = 0;
             if (c.getConexiones() != null) {
                 HashSet<String> vistos = new HashSet<>();
@@ -267,52 +270,64 @@ public class Sistema {
         return seg;
     }
 
-
-    public ABB<RankCliente> construirABBSeguidores() {
-        ABB<RankCliente> abb = new ABB<>();
-        abb.crearArbol();
+    public AVL<RankCliente> construirAVLSeguidores() {
+        AVL<RankCliente> avl = new AVL<>();
 
         Map<String, Integer> seguidores = calcularSeguidoresPorConexiones();
 
-        for (var e : seguidores.entrySet()) {
-            abb.agregarElemento(new RankCliente(e.getKey(), e.getValue()));
+        for (Map.Entry<String, Integer> e : seguidores.entrySet()) {
+            avl.agregar(new RankCliente(e.getKey(), e.getValue()));
         }
 
-        return abb;
+        return avl;
     }
 
+    public void imprimirNivel4() {
+        AVL<RankCliente> avl = construirAVLSeguidores();
 
-    public void imprimirClientesNivel4() {
-        ABB<RankCliente> abb = construirABBSeguidores();
-        System.out.println("Clientes en nivel 4:");
-        abb.imprimirNivel(4);
+        System.out.println("Clientes en nivel 4: (si raíz = 0)");
+        avl.imprimirPorNivel(3);                    // Ya que Raíz es = 0.
+        System.out.println();
+
+        System.out.println("Clientes en nivel 4: (con raíz = 1)");
+        avl.imprimirPorNivel(4);
+        System.out.println();
     }
 
 
     public void pruebaImprimirNiveles() {
-        ABB<RankCliente> abb = construirABBSeguidores();
-        System.out.println("Nivel 1:");
-        abb.imprimirNivel(1);
-        System.out.println("Nivel 2:");
-        abb.imprimirNivel(2);
-        System.out.println("Nivel 3:");
-        abb.imprimirNivel(3);
-        System.out.println("Nivel 4:");
-        abb.imprimirNivel(4);
-        System.out.println("Nivel 5:");
-        abb.imprimirNivel(5);
+        AVL<RankCliente> avl = construirAVLSeguidores();
+        System.out.println("Nivel 0 (raíz):");
+        avl.imprimirPorNivel(0);
+        System.out.println();
+
+        System.out.println("\nNivel 1:");
+        avl.imprimirPorNivel(1);
+        System.out.println();
+
+        System.out.println("\nNivel 2:");
+        avl.imprimirPorNivel(2);
+        System.out.println();
+
+        System.out.println("\nNivel 3:");
+        avl.imprimirPorNivel(3);
+        System.out.println();
+
+        System.out.println("\nNivel 4:");
+        avl.imprimirPorNivel(4);
+        System.out.println();
     }
 
     public String clienteConMasSeguidores() {
-        ABB<RankCliente> abb = construirABBSeguidores();
-        RankCliente max = abb.maximo();
+        AVL<RankCliente> avl = construirAVLSeguidores();
+        RankCliente max = avl.maximo();
 
-        if (max == null) return "Error: No hay clientes.";
+        if (max == null) return "No hay clientes.";
 
         Cliente c = porNombre.get(max.key);
         String nombreReal = (c != null) ? c.getNombre() : max.key;
 
-        return "Cliente con más seguidores: " + nombreReal + " => " + max.seguidores + "\n";
+        return "Cliente con más seguidores: " + nombreReal + " => " + max.seguidores;
     }
 
 

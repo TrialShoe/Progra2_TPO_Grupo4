@@ -4,7 +4,7 @@
       "nombre": "Alice",
       "scoring": 95,
       "siguiendo": ["Bob", "Charlie"],
-      "conexiones": ["Bob", "Charlie", "David"]
+      "conexiones": ["Bob", "Charlie", "David", "Frank"]
     },
     {
       "nombre": "Bob",
@@ -22,13 +22,20 @@
       "nombre": "David",
       "scoring": 92,
       "siguiendo": ["Alice"],
-      "conexiones": ["Bob", "Alice"]
+      "conexiones": ["Bob", "Alice", "Frank"]
     },
     {
       "nombre": "Eve",
       "scoring": 85,
       "siguiendo": [],
       "conexiones": ["Charlie"]
+    },
+    {
+      "nombre": "Frank",
+      "scoring": 78,
+      "siguiendo": ["Alice"],
+      "conexiones": ["David"]
     }
+
   ]
 }
