@@ -423,19 +423,20 @@ public class Sistema {
 
 
 
-    // agregar una relacion simetrica entre dos clientes (se presume que una relacion de amistad es bidireccional)
-    public boolean agregarAmistad(String a, String b) {
-        Cliente ca = getClienteKey(a);
-        Cliente cb = getClienteKey(b);
+    // GRAFOS (ITERACIÓN 3)
+    // Agrega una relación entre dos clientes.
+    public boolean agregarAmistad(String cliente1, String cliente2) {
+        Cliente ca = getClienteKey(cliente1);
+        Cliente cb = getClienteKey(cliente2);
         if (ca == null || cb == null) return false;
 
-        if (!ca.getConexiones().contains(b)) ca.getConexiones().add(b);
-        if (!cb.getConexiones().contains(a)) cb.getConexiones().add(a);
+        if (!ca.getConexiones().contains(cliente1)) ca.getConexiones().add(cliente2);
+        if (!cb.getConexiones().contains(cliente1)) cb.getConexiones().add(cliente2);
 
 
-        amistades.add(new Amistad(a, b));
+        amistades.add(new Amistad(cliente1, cliente2));
 
-        registrarAccion("RELACION|" + a + "|" + b);
+        registrarAccion("RELACION|" + cliente1 + "|" + cliente2);
         return true;
     }
 
