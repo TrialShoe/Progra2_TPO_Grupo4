@@ -1,6 +1,10 @@
 package org.example;
 
 import junit.framework.TestCase;
+import org.example.TDAs.ArbolAVL.AVL;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 public class AppTest extends TestCase {
 
@@ -135,5 +139,61 @@ public class AppTest extends TestCase {
         assertFalse(alice.getSiguiendo().contains("bob"));
     }
 
-    public void
+
+    public void testMostrarSeguidosYConexiones() {
+        Cliente alice = new Cliente("Alice", 95,
+                new java.util.ArrayList<>(java.util.List.of("Bob","Charlie")),
+                new java.util.ArrayList<>(java.util.List.of("Bob","Charlie","David"))
+        );
+
+        Cliente bob = new Cliente("Bob", 88);
+        Cliente charlie = new Cliente("Charlie", 80);
+        Cliente david = new Cliente("David", 92);
+
+        sistema.agregarCliente(alice);
+        sistema.agregarCliente(bob);
+        sistema.agregarCliente(charlie);
+        sistema.agregarCliente(david);
+
+        String seguidos = sistema.mostrarSeguidos("aLiCe");
+        assertTrue(seguidos.startsWith("Seguidos de"));
+        assertTrue(seguidos.contains("Bob"));
+        assertTrue(seguidos.contains("Charlie"));
+
+        String conexiones = sistema.mostrarConexiones("ALICE");
+        assertTrue(conexiones.startsWith("Conexiones de"));
+        assertTrue(conexiones.contains("Bob"));
+        assertTrue(conexiones.contains("Charlie"));
+        assertTrue(conexiones.contains("David"));
+    }
+
+
+    public void testAVL_ImprimirNivel() {
+        AVL<RankCliente> avl = new AVL<>();
+
+        // Insertamos 3 nodos: nivel 1 debe tener a y c.
+        avl.agregar(new RankCliente("b", 2));
+        avl.agregar(new RankCliente("a", 1));
+        avl.agregar(new RankCliente("c", 3));
+
+        // Capturamos System.out.
+        PrintStream original = System.out;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(buffer));
+
+        try {
+            avl.imprimirPorNivel(1);
+        } finally {
+            System.setOut(original);
+        }
+
+        String printed = buffer.toString();
+
+        // Valida que estén los dos hijos.
+        assertTrue(printed.contains("a (seguidores=1)"));
+        assertTrue(printed.contains("c (seguidores=3)"));
+
+        // Valida que NO esté la raíz en ese nivel.
+        assertFalse(printed.contains("b (seguidores=2)"));
+    }
 }
