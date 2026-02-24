@@ -26,7 +26,6 @@ public class TesteoApp {
         System.out.println(s.mostrarSeguidos("pedro"));
         System.out.println(s.mostrarConexiones("david"));
 
-        // System.out.println();
         // s.pruebaImprimirNiveles();
 
         System.out.println();

@@ -4,9 +4,9 @@ public class Amistad {
     private final String clienteA;
     private final String clienteB;
 
-    public Amistad(String a, String b) {
-        this.clienteA = a;
-        this.clienteB = b;
+    public Amistad(String clienteA, String clienteB) {
+        this.clienteA = clienteA;
+        this.clienteB = clienteB;
     }
 
     public String getClienteA() { return clienteA; }

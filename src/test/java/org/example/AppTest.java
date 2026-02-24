@@ -21,9 +21,9 @@ public class AppTest extends TestCase {
         assertEquals("bob", Sistema.normalizarNombre("b-o_b!"));
     }
 
-    // ====== Tests de alta/búsqueda de clientes ======
+    // ====== Tests de agregar y búsqueda de clientes ======
 
-    public void testAgregarCliente_AregarYBusqueda() {
+    public void testAgregarClienteYBusquedaNombreYScoring() {
         Cliente c = new Cliente("Pedro", 88);
 
         String rAdd = sistema.agregarCliente(c);
@@ -49,7 +49,7 @@ public class AppTest extends TestCase {
         assertTrue(r2.startsWith("Error: ya existe un cliente con el nombre"));
     }
 
-    // ====== Tests de follow (basado en escenarios de TesteoApp) ======
+    // ====== Tests de follow ======
 
     public void testSeguirYProcesarSiguienteSolicitud_AplicarFollowYRegistrarEnHistorial() {
         Cliente alice = new Cliente("Alice", 50);
@@ -58,18 +58,18 @@ public class AppTest extends TestCase {
         sistema.agregarCliente(alice);
         sistema.agregarCliente(bob);
 
-        // Solicitud en cola (no aplica directamente)
+        // Solicitud en cola.
         String rSoli = alice.seguir("bob", sistema);
         assertTrue(rSoli.startsWith("Solicitud de seguimiento en la cola"));
         assertEquals(0, alice.getSiguiendo().size());
 
-        // Procesa y aplica
+        // Procesa y aplica la solicitud.
         String rProc = alice.procesarSiguienteSolicitud(sistema);
         assertTrue(rProc.contains("ahora sigue a"));
         assertEquals(1, alice.getSiguiendo().size());
         assertTrue(alice.getSiguiendo().contains("bob"));
 
-        // Historial: última acción debería ser FOLLOW|alice|bob
+        // Última acción es: FOLLOW|alice|bob
         String ultima = sistema.verUltimaAccion();
         assertTrue(ultima.contains("FOLLOW|alice|bob"));
     }
@@ -85,11 +85,11 @@ public class AppTest extends TestCase {
         sistema.agregarCliente(charlie);
         sistema.agregarCliente(david);
 
-        // Dos solicitudes FOLLOW pendientes (todavía no aplicadas)
+        // Dos solicitudes FOLLOW pendientes.
         assertTrue(pedro.seguir("bob", sistema).startsWith("Solicitud de seguimiento"));
         assertTrue(pedro.seguir("charlie", sistema).startsWith("Solicitud de seguimiento"));
 
-        // La tercera debe fallar por el límite (2 actuales + pendientes)
+        // La tercera falla por el límite (2 actuales + pendientes)
         String r3 = pedro.seguir("david", sistema);
         assertTrue(r3.startsWith("Error: Pedro alcanzó el máximo de 2 clientes seguidos."));
     }
@@ -101,19 +101,19 @@ public class AppTest extends TestCase {
 
         sistema.agregarCliente(c);
 
-        // Verifica que está
+        // Verifica que exista el cliente.
         assertTrue(sistema.buscarPorNombre("pedro").startsWith("Cliente encontrado"));
 
-        // Deshace el ADD (se debería eliminar)
+        // Deshace el ADD.
         String rUndo = sistema.deshacerUltimaAccion();
         assertTrue(rUndo.startsWith("Accion Deshacer") || rUndo.startsWith("Cliente eliminado"));
 
-        // Ya no debería encontrarse
+        // No debería encontrarse el cliente una vez eliminado.
         String rFind2 = sistema.buscarPorNombre("pedro");
         assertTrue(rFind2.startsWith("Cliente no encontrado"));
     }
 
-    public void testDeshacerUltimaAccion_FOLLOW_RevertirElSeguimiento() {
+    public void testDeshacerUltimaAccion_FOLLOW_DejarDeSeguir() {
         Cliente alice = new Cliente("Alice", 50);
         Cliente bob = new Cliente("Bob", 60);
 
@@ -125,13 +125,15 @@ public class AppTest extends TestCase {
 
         assertTrue(alice.getSiguiendo().contains("bob"));
 
-        // Última acción: FOLLOW|alice|bob
+        // Última acción: FOLLOW|alice|bob.
         assertTrue(sistema.verUltimaAccion().contains("FOLLOW|alice|bob"));
 
-        // Deshacer debería hacer UNFOLLOW directo sin cola (dejarDeSeguirSinHistorial)
+        // Deshacer: UNFOLLOW directo sin cola.
         String rUndo = sistema.deshacerUltimaAccion();
         assertTrue(rUndo.contains("dejó de seguir") || rUndo.contains("Accion Deshacer"));
 
         assertFalse(alice.getSiguiendo().contains("bob"));
     }
+
+    public void
 }
