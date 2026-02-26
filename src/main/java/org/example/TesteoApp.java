@@ -37,33 +37,36 @@ public class TesteoApp {
 
 
 
-        /*
-
-        System.out.println();
-        System.out.println();
+        System.out.println("\n\n\n\n\n");
+        System.out.println("~~~~~~~~~~ GRAFOS AMISTADES ~~~~~~~~~~ \n");
 
         Cliente obama = s.obtenerCliente("obama");
         Cliente messi = s.obtenerCliente("messi");
         Cliente bob = s.obtenerCliente("bob");
         Cliente alice = s.obtenerCliente("alice");
+        Cliente frank = s.obtenerCliente("frank");
+        Cliente profe = s.obtenerCliente("manuel adrian caceres");
 
-        s.agregarAmistad("obama","messi");
-        s.agregarAmistad("bob","alice");
-        s.agregarAmistad("messi","bob");
+        s.agregarAmistad(obama,messi);
+        s.agregarAmistad(messi,bob);
+
+        // Prueba para ver si añade aunque ya esté la Amistad.
+        s.agregarAmistad(profe,alice);
+        s.agregarAmistad(alice,profe);
 
         System.out.println("Vecinos de Obama: " + s.getVecinos("obama"));
         System.out.println("Vecinos de Messi: " + s.getVecinos("messi"));
         System.out.println();
 
-        System.out.println("Amistades: " + s.getAmistades());
+        System.out.println("Amistades: \n" + s.getAmistades());
+        System.out.println();
 
-        System.out.println("Distancia Obama -> Messi: " + s.distancia("obama", "messi"));
-        System.out.println("Distancia Obama -> Bob: " + s.distancia("obama", "bob"));
-        System.out.println("Distancia Obama -> Alice: " + s.distancia("obama", "alice"));
-        System.out.println("Distancia Obama -> Obama: " + s.distancia("obama", "obama"));
-        System.out.println("Distancia Obama -> X: " + s.distancia("obama", "x"));
+        System.out.println("Distancia Obama -> Frank: " + s.distancia(obama, frank));
+        System.out.println("Distancia Frank -> Obama: " + s.distancia(frank, obama));
+        System.out.println("Distancia Obama -> Obama: " + s.distancia(obama, obama));
 
-         */
 
+        //System.out.println();
+        //s.debugDistanciasDesde(obama);
     }
 }

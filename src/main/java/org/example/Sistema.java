@@ -56,15 +56,17 @@ public class Sistema {
                 else repetidos++;
             }
 
+            normalizarListasDeRelaciones();
+            construirAmistadesDesdeConexiones();
+
             return "Carga completa. Cargados: " + cargados + ".";
 
         } catch (FileNotFoundException e) {
-            return "Archivo no encontrado.";
+            return "Error: Archivo no encontrado.";
         } catch (Exception e) {
-            return "Error al leer JSON: " + e.getMessage();
+            return "Error: al leer JSON: " + e.getMessage();
         }
     }
-
 
     public void mostrarClientes() {
 
@@ -83,7 +85,6 @@ public class Sistema {
         System.out.println("------------------------------");
     }
 
-
     public static List<Cliente> ordenarClientes(Map<String, Cliente> clientes) {
 
         List<Cliente> listaOrdenada = new ArrayList<>(clientes.values());
@@ -98,6 +99,77 @@ public class Sistema {
         return listaOrdenada;
     }
 
+
+    private void normalizarListasDeRelaciones() {
+        for (Cliente c : porNombre.values()) {
+            // Normaliza CONEXIONES.
+            if (c.getConexiones() != null) {
+                List<String> normalizadas = new ArrayList<>();
+                Set<String> vistos = new HashSet<>();
+
+                for (String nombreReal : c.getConexiones()) {
+                    String key = normalizarNombre(nombreReal);
+                    if (key.isBlank()) continue;
+
+                    // Solo conserva si el cliente existe en el sistema.
+                    if (!porNombre.containsKey(key)) continue;
+
+                    if (vistos.add(key)) {
+                        normalizadas.add(key);
+                    }
+                }
+
+                c.conexiones = normalizadas;
+            }
+
+            // Normaliza SIGUIENDO.
+            if (c.getSiguiendo() != null) {
+                List<String> normalizadas = new ArrayList<>();
+                Set<String> vistos = new HashSet<>();
+
+                for (String nombreReal : c.getSiguiendo()) {
+                    String key = normalizarNombre(nombreReal);
+                    if (key.isBlank()) continue;
+                    if (!porNombre.containsKey(key)) continue;
+
+                    if (vistos.add(key)) {
+                        normalizadas.add(key);
+                    }
+                }
+
+                c.siguiendo = normalizadas;
+            }
+        }
+    }
+
+    private void construirAmistadesDesdeConexiones() {
+        // Vacía la lista de Amistades para reconstruirla desde cero.
+        amistades.clear();
+
+        Set<String> yaAgregadas = new HashSet<>();
+
+        for (Map.Entry<String, Cliente> entry : porNombre.entrySet()) {
+            String a = entry.getKey();
+            Cliente clienteA = entry.getValue();
+
+            List<String> conns = clienteA.getConexiones();
+            if (conns == null) continue;
+
+            for (String b : conns) {
+                if (b == null || b.isBlank()) continue;
+                if (!porNombre.containsKey(b)) continue;
+                if (a.equals(b)) continue;
+
+                String min = (a.compareTo(b) < 0) ? a : b;
+                String max = (a.compareTo(b) < 0) ? b : a;
+                String firma = min + "|" + max;
+
+                if (yaAgregadas.add(firma)) {
+                    amistades.add(new Amistad(min, max));
+                }
+            }
+        }
+    }
 
     public boolean existeClienteKey(String key) {
         return porNombre.containsKey(key);
@@ -333,7 +405,6 @@ public class Sistema {
 
 
 
-
     // Metodo para volver a agregar el cliente que fue eliminado. Al deshacer la acción.
     public String agregarClienteSinHistorial(Cliente c) {
         if (c == null) {
@@ -423,54 +494,80 @@ public class Sistema {
 
 
 
+
+
     // GRAFOS (ITERACIÓN 3)
     // Agrega una relación entre dos clientes.
-    public boolean agregarAmistad(String cliente1, String cliente2) {
-        Cliente ca = getClienteKey(cliente1);
-        Cliente cb = getClienteKey(cliente2);
-        if (ca == null || cb == null) return false;
+    public boolean agregarAmistad(Cliente clienteA, Cliente clienteB) {
+        if (clienteA == null || clienteB == null) return false;
 
-        if (!ca.getConexiones().contains(cliente1)) ca.getConexiones().add(cliente2);
-        if (!cb.getConexiones().contains(cliente1)) cb.getConexiones().add(cliente2);
+        String ca = normalizarNombre(clienteA.getNombre());
+        String cb = normalizarNombre(clienteB.getNombre());
+
+        if (ca.isBlank() || cb.isBlank()) return false;
+        if (ca.equals(cb)) return false;
 
 
-        amistades.add(new Amistad(cliente1, cliente2));
+        Cliente A = obtenerCliente(ca);
+        Cliente B = obtenerCliente(cb);
 
-        registrarAccion("RELACION|" + cliente1 + "|" + cliente2);
+        if (!A.getConexiones().contains(cb)) A.getConexiones().add(cb);
+        else return false;
+        if (!B.getConexiones().contains(ca)) B.getConexiones().add(ca);
+        else return false;
+
+        amistades.add(new Amistad(ca, cb));
+        registrarAccion("RELACION|" + ca + "|" + cb);
         return true;
     }
 
-    // obtener vecinos (conexiones) de un cliente
-    public Set<String> getVecinos(String nombre) {
-        Cliente c = getClienteKey(nombre);
-        if (c == null) return Collections.emptySet();
-        return new HashSet<>(c.getConexiones());
+    // Obtiene vecinos (conexiones) de un cliente.
+    public Set<String> getVecinos(String cliente) {
+        Set<String> vecinos = new HashSet<>();
+
+        for (Amistad a : amistades) {
+            String x = a.getClienteA();
+            String y = a.getClienteB();
+
+            if (cliente.equals(x)) vecinos.add(y);
+            else if (cliente.equals(y)) vecinos.add(x);
+        }
+        return vecinos;
     }
 
-    // Calcula distancia (numero de saltos) entre dos clientes.
-    public OptionalInt distancia(String clienteInicial, String clienteDestino) {
-        Cliente inicial = getClienteKey(clienteInicial);
-        Cliente destino = getClienteKey(clienteDestino);
-        if (inicial == null || destino == null) return OptionalInt.empty();
-        if (clienteInicial.equals(clienteDestino)) return OptionalInt.of(0);
+    // Calcula la distancia (numero de saltos) entre dos clientes.
+    public OptionalInt distancia(Cliente clienteInicial, Cliente clienteDestino) {
+        if (clienteInicial == null || clienteDestino == null) return OptionalInt.empty();
+
+        String cInicial = normalizarNombre(clienteInicial.getNombre());
+        String cDestino = normalizarNombre(clienteDestino.getNombre());
+
+        if (cInicial.isBlank() || cDestino.isBlank()) return OptionalInt.empty();
+        if (cInicial.equals(cDestino)) return OptionalInt.of(0);
 
         Queue<String> q = new ArrayDeque<>();
         Map<String, Integer> dist = new HashMap<>();
         Set<String> visitados = new HashSet<>();
 
-        q.add(clienteInicial); dist.put(clienteInicial, 0); visitados.add(clienteInicial);
+        q.add(cInicial);
+        dist.put(cInicial, 0);
+        visitados.add(cInicial);
 
         while (!q.isEmpty()) {
             String actual = q.poll();
             int d = dist.get(actual);
+
             for (String vecino : getVecinos(actual)) {
                 if (visitados.contains(vecino)) continue;
-                if (vecino.equals(clienteDestino)) return OptionalInt.of(d + 1);
+
+                if (vecino.equals(cDestino)) return OptionalInt.of(d + 1);
+
                 visitados.add(vecino);
                 dist.put(vecino, d + 1);
                 q.add(vecino);
             }
         }
+
         return OptionalInt.empty();
     }
 
@@ -513,6 +610,17 @@ public class Sistema {
             }
 
             System.out.println("Entrada inválida. Ingrese texto.");
+        }
+    }
+
+
+    public void debugDistanciasDesde(Cliente cliente) {
+        String cNombre = normalizarNombre(cliente.getNombre());
+
+        for (String key : porNombre.keySet()) {
+            Cliente cKey = porNombre.get(key);
+            OptionalInt d = distancia(cliente, cKey);
+            System.out.println("Distancia " + cNombre + " -> " + key + ": " + d);
         }
     }
 

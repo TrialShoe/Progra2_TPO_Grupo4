@@ -14,6 +14,6 @@ public class Amistad {
 
     @Override
     public String toString() {
-        return clienteA + " <-> " + clienteB;
+        return clienteA + " <-> " + clienteB + "\n";
     }
 }
